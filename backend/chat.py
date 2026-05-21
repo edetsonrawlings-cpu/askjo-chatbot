@@ -46,23 +46,23 @@ def detect_language(messages: list) -> str:
     last_user_msg = ""
     for m in reversed(messages):
         if m["role"] == "user":
-            last_user_msg = m["content"].lower()
+            last_user_msg = m["content"]
             break
 
-    french_words = ["bonjour", "merci", "comment", "je", "tu", "nous", "vous",
-                    "est", "sont", "pour", "avec", "dans", "aide", "besoin", "travail"]
-    english_words = ["hello", "hi", "how", "what", "where", "help", "need",
-                     "job", "work", "fund", "money", "career", "youth", "please"]
+    # Count French-specific characters and words
+    french_indicators = [
+        "é", "è", "ê", "à", "ù", "û", "î", "ô", "ç",
+        "bonjour", "merci", "comment", "je suis", "je veux",
+        "qu'est", "c'est", "j'ai", "n'est", "s'il",
+        "pour", "avec", "dans", "vous", "nous"
+    ]
 
-    french_count = sum(1 for w in french_words if w in last_user_msg)
-    english_count = sum(1 for w in english_words if w in last_user_msg)
+    french_count = sum(1 for w in french_indicators if w in last_user_msg.lower())
 
-    if french_count > english_count:
+    if french_count >= 2:
         return "french"
-    elif english_count > french_count:
-        return "english"
     else:
-        return "auto"
+        return "english"
 
 def get_askjo_response(messages: list, language: str = "auto") -> tuple[str, str]:
     """Send messages to Groq and get Ask Jo's response."""
